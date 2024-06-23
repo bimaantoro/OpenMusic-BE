@@ -9,12 +9,12 @@ const AlbumsService = require('./services/AlbumsService');
 const AlbumsValidator = require('./validator/albums');
 
 const init = async () => {
-  const albumsSercvice = new AlbumsService();
+  const albumsService = new AlbumsService();
   const songsService = new SongsService();
 
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: process.env.PORT ?? 'localhost',
+    host: process.env.HOST ?? 5000,
     routes: {
       cors: {
         origin: ['*'],
@@ -60,7 +60,8 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsSercvice,
+        albumsService,
+        songsService,
         validator: AlbumsValidator,
       },
     },
