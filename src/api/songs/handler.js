@@ -13,13 +13,13 @@ class SongsHandler {
   async postSongHandler(request, h) {
     const songPayload = this._validator.validatePostSongPayload(request.payload);
 
-    const songId = await this._service.addSong(songPayload);
+    const id = await this._service.addSong(songPayload);
 
     return h.response({
       status: 'success',
       message: 'Song added successfully',
       data: {
-        songId,
+        id,
       },
     }).code(201);
   }
@@ -28,38 +28,7 @@ class SongsHandler {
     const { title = '', performer = '' } = request.query;
     await this._validator.validateSongQuery({ title, performer });
 
-    const lowerCaseTitle = title.toLowerCase();
-    const lowerCasePerformer = performer.toLowerCase();
-
-    const songs = await this._service.getSongs();
-
-    if (title !== '' && performer !== '') {
-      return {
-        status: 'success',
-        data: {
-          songs: songs.filter((song) => song.title.toLowerCase().includes(lowerCaseTitle)
-          && song.performer.toLowerCase().includes(lowerCasePerformer)),
-        },
-      };
-    }
-
-    if (title !== '') {
-      return {
-        status: 'success',
-        data: {
-          songs: songs.filter((song) => song.title.toLowerCase().includes(lowerCaseTitle)),
-        },
-      };
-    }
-
-    if (performer !== '') {
-      return {
-        status: 'success',
-        data: {
-          songs: songs.filter((song) => song.performer.toLowerCase().includes(lowerCasePerformer)),
-        },
-      };
-    }
+    const songs = await this._service.getSongs(title, performer);
 
     return {
       status: 'success',

@@ -13,11 +13,10 @@ class SongsService {
   }) {
     const id = `song-${nanoid(16)}`;
     const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      values: [id, title, year, genre, performer, duration, albumId, createdAt, updatedAt],
+      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $8) RETURNING id',
+      values: [id, title, year, genre, performer, duration, albumId, createdAt],
     };
 
     const { rows } = await this._pool.query(query);
@@ -29,8 +28,28 @@ class SongsService {
     return rows[0].id;
   }
 
-  async getSongs() {
-    const query = 'SELECT id, title, performer FROM songs';
+  async getSongs(title, performer) {
+    let query = '';
+
+    if (title !== '' && performer !== '') {
+      query = {
+        text: 'SELECT id, title, performer FROM songs WHERE LOWER (title) LIKE $1 AND LOWER(performer) LIKE $2',
+        values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
+      };
+    } else if (title !== '') {
+      query = {
+        text: 'SELECT id, title, performer FROM songs WHERE LOWER (title) LIKE $1',
+        values: [`%${title.toLowerCase()}%`],
+      };
+    } else if (performer !== '') {
+      query = {
+        text: 'SELECT id, title, performer FROM songs WHERE LOWER (performer) LIKE $1',
+        values: [`%${performer.toLowerCase()}%`],
+      };
+    } else {
+      query = 'SELECT id, title, performer FROM songs';
+    }
+
     const { rows } = await this._pool.query(query);
 
     return rows;
