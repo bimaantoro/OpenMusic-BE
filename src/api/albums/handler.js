@@ -1,13 +1,12 @@
+const autoBind = require('auto-bind');
+
 class AlbumsHandler {
   constructor(albumsService, songsService, validator) {
     this._albumsService = albumsService;
     this._songsService = songsService;
     this._validator = validator;
 
-    this.addAlbumHandler = this.addAlbumHandler.bind(this);
-    this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
-    this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
-    this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
+    autoBind(this);
   }
 
   async addAlbumHandler(request, h) {
@@ -17,7 +16,7 @@ class AlbumsHandler {
 
     return h.response({
       status: 'success',
-      message: 'Album successfully added',
+      message: 'Album was added successfully',
       data: {
         id,
       },
@@ -48,7 +47,7 @@ class AlbumsHandler {
 
     return {
       status: 'success',
-      message: 'Album updated successfully',
+      message: 'Album was updated successfully',
     };
   }
 
@@ -59,7 +58,7 @@ class AlbumsHandler {
 
     return {
       status: 'success',
-      message: 'Album deleted successfully',
+      message: 'Album was deleted successfully',
     };
   }
 }

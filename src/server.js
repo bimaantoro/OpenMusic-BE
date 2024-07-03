@@ -6,19 +6,29 @@ const ClientError = require('./exceptions/ClientError');
 const SongsService = require('./services/SongsService');
 const songs = require('./api/songs');
 const SongsValidator = require('./validator/songs');
-const albums = require('./api/albums');
 
 // albums
+const albums = require('./api/albums');
 const AlbumsService = require('./services/AlbumsService');
 const AlbumsValidator = require('./validator/albums');
+
+// users
 const UsersService = require('./services/UsersService');
 const users = require('./api/users');
 const UsersValidator = require('./validator/users');
+
+// authentications
+const AuthenticationsService = require('./services/AuthenticationsService');
+const authentications = require('./api/authentications');
+const AuthenticationsValidator = require('./validator/authentications');
+const TokenManager = require('./tokenize/TokenManager');
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
+  const authenticationsService = new AuthenticationsService();
+  const tokenManager = new TokenManager();
 
   const server = Hapi.server({
     port: process.env.PORT ?? 'localhost',
@@ -78,6 +88,15 @@ const init = async () => {
       options: {
         service: usersService,
         validator: UsersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService,
+        usersService,
+        tokenManager,
+        validator: AuthenticationsValidator,
       },
     },
   ]);
