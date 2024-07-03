@@ -17,7 +17,7 @@ class AlbumsHandler {
 
     return h.response({
       status: 'success',
-      message: 'Album added successfully',
+      message: 'Album successfully added',
       data: {
         id,
       },

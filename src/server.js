@@ -1,16 +1,24 @@
 require('dotenv').config();
 const Hapi = require('@hapi/hapi');
+const ClientError = require('./exceptions/ClientError');
+
+// songs
 const SongsService = require('./services/SongsService');
 const songs = require('./api/songs');
-const ClientError = require('./exceptions/ClientError');
 const SongsValidator = require('./validator/songs');
 const albums = require('./api/albums');
+
+// albums
 const AlbumsService = require('./services/AlbumsService');
 const AlbumsValidator = require('./validator/albums');
+const UsersService = require('./services/UsersService');
+const users = require('./api/users');
+const UsersValidator = require('./validator/users');
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const usersService = new UsersService();
 
   const server = Hapi.server({
     port: process.env.PORT ?? 'localhost',
@@ -63,6 +71,13 @@ const init = async () => {
         albumsService,
         songsService,
         validator: AlbumsValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
       },
     },
   ]);
