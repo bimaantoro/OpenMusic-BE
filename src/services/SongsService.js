@@ -28,29 +28,8 @@ class SongsService {
     return rows[0].id;
   }
 
-  async getSongs(title, performer) {
-    let query = '';
-
-    if (title !== '' && performer !== '') {
-      query = {
-        text: 'SELECT id, title, performer FROM songs WHERE LOWER (title) LIKE $1 AND LOWER(performer) LIKE $2',
-        values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
-      };
-    } else if (title !== '') {
-      query = {
-        text: 'SELECT id, title, performer FROM songs WHERE LOWER (title) LIKE $1',
-        values: [`%${title.toLowerCase()}%`],
-      };
-    } else if (performer !== '') {
-      query = {
-        text: 'SELECT id, title, performer FROM songs WHERE LOWER (performer) LIKE $1',
-        values: [`%${performer.toLowerCase()}%`],
-      };
-    } else {
-      query = 'SELECT id, title, performer FROM songs';
-    }
-
-    const { rows } = await this._pool.query(query);
+  async getSongs() {
+    const { rows } = await this._pool.query('SELECT id, title, performer FROM songs');
 
     return rows;
   }
@@ -108,6 +87,36 @@ class SongsService {
     if (!rows.length) {
       throw new NotFoundError('Failed to delete song. Id not found');
     }
+  }
+
+  async getSongsByTitleAndPerformer(title, performer) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1 AND LOWER(performer) LIKE $2',
+      values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
+    };
+
+    const { rows } = await this._pool.query(query);
+    return rows;
+  }
+
+  async getSongsByTitle(title) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1',
+      values: [`%${title.toLowerCase()}%`],
+    };
+
+    const { rows } = await this._pool.query(query);
+    return rows;
+  }
+
+  async getSongsByPerformer(performer) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE $1',
+      values: [`%${performer.toLowerCase()}%`],
+    };
+
+    const { rows } = await this._pool.query(query);
+    return rows;
   }
 }
 
