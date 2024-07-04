@@ -5,8 +5,9 @@ const NotFoundError = require('../exceptions/NotFoundError');
 const AuthorizationError = require('../exceptions/AuthorizationError');
 
 class PlaylistsService {
-  constructor() {
+  constructor(collaborationsService) {
     this._pool = new Pool();
+    this._collaborationsService = collaborationsService;
   }
 
   async addPlaylist({ name, owner }) {
@@ -33,13 +34,30 @@ class PlaylistsService {
         FROM playlists
         LEFT JOIN users ON users.id = playlists.owner
         WHERE playlists.owner = $1
-        GROUP BY playlists.id, users.username
-        `,
+        GROUP BY playlists.id, users.username`,
       values: [owner],
     };
 
     const { rows } = await this._pool.query(query);
     return rows;
+  }
+
+  async getPlaylistById(id) {
+    const query = {
+      text: `SELECT playlists.id, playlists.name, users.username
+      FROM playlists
+      LEFT JOIN users ON users.id = playlists.owner
+      WHERE playlists.id = $1`,
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Playlist not found');
+    }
+
+    return rows[0];
   }
 
   async deletePlaylistById(id) {
@@ -67,6 +85,22 @@ class PlaylistsService {
 
     if (playlist.owner !== owner) {
       throw new AuthorizationError('You have no right to access this resource');
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+
+      try {
+        await this.verifyCollaborator(playlistId, userId);
+      } catch {
+        throw error;
+      }
     }
   }
 }
