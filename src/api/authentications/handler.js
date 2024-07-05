@@ -23,7 +23,7 @@ class AuthenticationsHandler {
 
     return h.response({
       status: 'success',
-      message: 'Authentication was added successfully',
+      message: 'Authentication was added successfully.',
       data: {
         accessToken,
         refreshToken,
@@ -41,7 +41,7 @@ class AuthenticationsHandler {
 
     return {
       status: 'success',
-      message: 'Access Token was updated successfully',
+      message: 'The access token was updated successfully.',
       data: {
         accessToken,
       },
@@ -56,7 +56,7 @@ class AuthenticationsHandler {
 
     return {
       status: 'success',
-      message: 'Refresh token was deleted successfully',
+      message: 'The refresh token was deleted successfully.',
     };
   }
 }

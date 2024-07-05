@@ -22,7 +22,7 @@ class PlaylistsService {
     const { rows } = await this._pool.query(query);
 
     if (!rows[0].id) {
-      throw new InvariantError('Failed to added playlist');
+      throw new InvariantError('Failed to add playlist');
     }
 
     return rows[0].id;
@@ -33,7 +33,8 @@ class PlaylistsService {
       text: `SELECT playlists.id, playlists.name, users.username
         FROM playlists
         LEFT JOIN users ON users.id = playlists.owner
-        WHERE playlists.owner = $1
+        LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+        WHERE playlists.owner = $1 OR collaborations.user_id = $1
         GROUP BY playlists.id, users.username`,
       values: [owner],
     };
@@ -69,6 +70,51 @@ class PlaylistsService {
     await this._pool.query(query);
   }
 
+  async addSongToPlaylist(playlistId, songId) {
+    const id = `playlistsongs-${nanoid(16)}`;
+
+    const query = {
+      text: 'INSERT INTO playlist_songs VALUES($1, $2, $3) RETURNING id',
+      values: [id, playlistId, songId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows[0].id) {
+      throw new InvariantError('Failed added song to playlist');
+    }
+
+    return rows[0].id;
+  }
+
+  async getSongsByPlaylistId(playlistId) {
+    const query = {
+      text: `SELECT songs.id, songs.title, songs.performer
+            FROM playlist_songs
+            LEFT JOIN songs ON songs.id = playlist_songs.song_id
+            WHERE playlist_songs.playlist_id = $1
+            GROUP BY playlist_songs.song_id, songs.id`,
+      values: [playlistId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    return rows;
+  }
+
+  async deleteSongFromPlaylist(playlistId, songId) {
+    const query = {
+      text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
+      values: [playlistId, songId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Failed to delete a song from the playlist. Id not found');
+    }
+  }
+
   async verifyPlaylistOwner(id, owner) {
     const query = {
       text: 'SELECT * FROM playlists WHERE id = $1',
@@ -84,7 +130,7 @@ class PlaylistsService {
     const playlist = rows[0];
 
     if (playlist.owner !== owner) {
-      throw new AuthorizationError('You have no right to access this resource');
+      throw new AuthorizationError('You have no right to access this resource.');
     }
   }
 
@@ -97,10 +143,36 @@ class PlaylistsService {
       }
 
       try {
-        await this.verifyCollaborator(playlistId, userId);
+        await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
         throw error;
       }
+    }
+  }
+
+  async isSongExists(id) {
+    const query = {
+      text: 'SELECT id, title, year, performer, genre, duration, album_id FROM songs WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Song not found');
+    }
+  }
+
+  async isPlaylistExists(id) {
+    const query = {
+      text: 'SELECT id, name FROM playlists WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Playlist not found');
     }
   }
 }

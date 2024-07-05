@@ -24,7 +24,7 @@ class AuthenticationsService {
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new InvariantError('Invalid refresh token');
+      throw new InvariantError('The refresh token is invalid.');
     }
   }
 

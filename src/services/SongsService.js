@@ -80,20 +80,20 @@ class SongsService {
     }
   }
 
-  async getSongsByTitleAndPerformer(title, performer) {
+  async getSongsByAlbumId(albumId) {
     const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1 AND LOWER(performer) LIKE $2',
-      values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
+      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
+      values: [albumId],
     };
 
     const { rows } = await this._pool.query(query);
     return rows;
   }
 
-  async getSongsByAlbumId(albumId) {
+  async getSongsByTitleAndPerformer(title, performer) {
     const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
-      values: [albumId],
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE $1 AND LOWER(performer) LIKE $2',
+      values: [`%${title.toLowerCase()}%`, `%${performer.toLowerCase()}%`],
     };
 
     const { rows } = await this._pool.query(query);

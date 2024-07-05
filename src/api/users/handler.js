@@ -1,21 +1,19 @@
-const autoBind = require('auto-bind');
-
 class UsersHandler {
-  constructor(service, validator) {
-    this._service = service;
+  constructor(usersService, validator) {
+    this._usersService = usersService;
     this._validator = validator;
 
-    autoBind(this);
+    this.postUserHandler = this.postUserHandler.bind(this);
   }
 
   async postUserHandler(request, h) {
     const userPayload = this._validator.validateUserPayload(request.payload);
 
-    const userId = await this._service.addUser(userPayload);
+    const userId = await this._usersService.addUser(userPayload);
 
     return h.response({
       status: 'success',
-      message: 'User was added successfully',
+      message: 'The user was added successfully.',
       data: {
         userId,
       },

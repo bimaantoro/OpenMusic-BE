@@ -25,7 +25,7 @@ class UsersService {
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new InvariantError('Failed to added user');
+      throw new InvariantError('Failed to add a user');
     }
 
     return rows[0].id;
@@ -40,7 +40,7 @@ class UsersService {
     const { rows } = await this._pool.query(query);
 
     if (rows.length > 0) {
-      throw new InvariantError('Failed to add user. Username already exist');
+      throw new InvariantError('Failed to add a user. The username already exists.');
     }
   }
 

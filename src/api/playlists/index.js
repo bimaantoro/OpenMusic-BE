@@ -5,11 +5,10 @@ const playlists = {
   name: 'playlists',
   version: '1.0.0',
   register: async (server, {
-    playlistsService, playlistSongsService, validator,
+    playlistsService, validator,
   }) => {
     const playlistsHandler = new PlaylistsHandler(
       playlistsService,
-      playlistSongsService,
       validator,
     );
     server.route(routes(playlistsHandler));

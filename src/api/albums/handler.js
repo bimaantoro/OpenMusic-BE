@@ -12,21 +12,21 @@ class AlbumsHandler {
   async addAlbumHandler(request, h) {
     const albumPayload = this._validator.validatePostAlbumPayload(request.payload);
 
-    const id = await this._albumsService.addAlbum(albumPayload);
+    const albumId = await this._albumsService.addAlbum(albumPayload);
 
     return h.response({
       status: 'success',
-      message: 'Album was added successfully',
+      message: 'The album was added successfully.',
       data: {
-        id,
+        albumId,
       },
     }).code(201);
   }
 
   async getAlbumByIdHandler(request) {
-    const { albumId } = request.params;
-    const album = await this._albumsService.getAlbumById(albumId);
-    const songs = await this._songsService.getSongsByAlbumId(albumId);
+    const { id } = request.params;
+    const album = await this._albumsService.getAlbumById(id);
+    const songs = await this._songsService.getSongsByAlbumId(id);
 
     return {
       status: 'success',
@@ -40,25 +40,25 @@ class AlbumsHandler {
   }
 
   async putAlbumByIdHandler(request) {
-    const { albumId } = request.params;
+    const { id } = request.params;
     const albumPayload = this._validator.validatePutAlbumPayload(request.payload);
 
-    await this._albumsService.editAlbumById(albumId, albumPayload);
+    await this._albumsService.editAlbumById(id, albumPayload);
 
     return {
       status: 'success',
-      message: 'Album was updated successfully',
+      message: 'The album was updated successfully.',
     };
   }
 
   async deleteAlbumByIdHandler(request) {
-    const { albumId } = request.params;
+    const { id } = request.params;
 
-    await this._albumsService.deleteAlbumById(albumId);
+    await this._albumsService.deleteAlbumById(id);
 
     return {
       status: 'success',
-      message: 'Album was deleted successfully',
+      message: 'The album was deleted successfully.',
     };
   }
 }

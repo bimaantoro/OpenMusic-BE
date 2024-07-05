@@ -1,6 +1,7 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../exceptions/InvariantError');
+const NotFoundError = require('../exceptions/NotFoundError');
 
 class CollaborationsService {
   constructor() {
@@ -18,7 +19,7 @@ class CollaborationsService {
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new InvariantError('Failed to added collaborations');
+      throw new InvariantError('Failed to add collaboration');
     }
 
     return rows[0].id;
@@ -37,16 +38,29 @@ class CollaborationsService {
     }
   }
 
+  async verifyUserExists(userId) {
+    const query = {
+      text: 'SELECT * FROM users WHERE id = $1',
+      values: [userId],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('User not found');
+    }
+  }
+
   async verifyCollaborator(playlistId, userId) {
     const query = {
-      text: 'SELECT playlist_id, user_id FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
+      text: 'SELECT * FROM collaborations WHERE playlist_id = $1 AND user_id = $2',
       values: [playlistId, userId],
     };
 
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new InvariantError('Failed to verified Collaboration');
+      throw new InvariantError('Failed to verify collaboration');
     }
   }
 }
