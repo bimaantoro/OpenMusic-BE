@@ -109,18 +109,18 @@ const init = async () => {
 
   await server.register([
     {
-      plugin: songs,
-      options: {
-        service: songsService,
-        validator: SongsValidator,
-      },
-    },
-    {
       plugin: albums,
       options: {
         albumsService,
         songsService,
         validator: AlbumsValidator,
+      },
+    },
+    {
+      plugin: songs,
+      options: {
+        songsService,
+        validator: SongsValidator,
       },
     },
     {
