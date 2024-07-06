@@ -5,7 +5,10 @@ const playlistSongs = {
   name: 'playlist_songs',
   version: '1.0.0',
   register: async (server, {
-    playlistSongsService, playlistsService, songsService, validator,
+    playlistSongsService,
+    playlistsService,
+    songsService,
+    validator,
   }) => {
     const playlistSongsHandler = new PlaylistSongsHandler(
       playlistSongsService,

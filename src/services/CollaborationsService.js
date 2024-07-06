@@ -1,7 +1,6 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../exceptions/InvariantError');
-const NotFoundError = require('../exceptions/NotFoundError');
 
 class CollaborationsService {
   constructor() {
@@ -35,19 +34,6 @@ class CollaborationsService {
 
     if (!rows.length) {
       throw new InvariantError('Failed to delete collaboration');
-    }
-  }
-
-  async verifyUserExists(userId) {
-    const query = {
-      text: 'SELECT * FROM users WHERE id = $1',
-      values: [userId],
-    };
-
-    const { rows } = await this._pool.query(query);
-
-    if (!rows.length) {
-      throw new NotFoundError('User not found');
     }
   }
 
