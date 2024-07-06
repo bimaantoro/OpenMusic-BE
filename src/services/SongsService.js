@@ -119,6 +119,19 @@ class SongsService {
     const { rows } = await this._pool.query(query);
     return rows;
   }
+
+  async isSongExists(id) {
+    const query = {
+      text: 'SELECT id, title, year, performer, genre, duration, album_id FROM songs WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Song not found');
+    }
+  }
 }
 
 module.exports = SongsService;

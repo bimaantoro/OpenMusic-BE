@@ -15,7 +15,7 @@ class PlaylistsService {
     const createdAt = new Date().toISOString();
 
     const query = {
-      text: 'INSERT INTO playlists VALUES($1, $2, $3, $4, $4) RETURNING id',
+      text: 'INSERT INTO playlists VALUES($1, $2, $3, $4) RETURNING id',
       values: [id, name, owner, createdAt],
     };
 
@@ -67,51 +67,10 @@ class PlaylistsService {
       values: [id],
     };
 
-    await this._pool.query(query);
-  }
-
-  async addSongToPlaylist(playlistId, songId) {
-    const id = `playlistsongs-${nanoid(16)}`;
-
-    const query = {
-      text: 'INSERT INTO playlist_songs VALUES($1, $2, $3) RETURNING id',
-      values: [id, playlistId, songId],
-    };
-
-    const { rows } = await this._pool.query(query);
-
-    if (!rows[0].id) {
-      throw new InvariantError('Failed added song to playlist');
-    }
-
-    return rows[0].id;
-  }
-
-  async getSongsByPlaylistId(playlistId) {
-    const query = {
-      text: `SELECT songs.id, songs.title, songs.performer
-            FROM playlist_songs
-            LEFT JOIN songs ON songs.id = playlist_songs.song_id
-            WHERE playlist_songs.playlist_id = $1
-            GROUP BY playlist_songs.song_id, songs.id`,
-      values: [playlistId],
-    };
-
-    const { rows } = await this._pool.query(query);
-
-    return rows;
-  }
-
-  async deleteSongFromPlaylist(playlistId, songId) {
-    const query = {
-      text: 'DELETE FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 RETURNING id',
-      values: [playlistId, songId],
-    };
-
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new NotFoundError('Failed to delete a song from the playlist. Id not found');
+      throw new NotFoundError('Failed to delete playlist. Id not found');
     }
   }
 
@@ -147,19 +106,6 @@ class PlaylistsService {
       } catch {
         throw error;
       }
-    }
-  }
-
-  async isSongExists(id) {
-    const query = {
-      text: 'SELECT id, title, year, performer, genre, duration, album_id FROM songs WHERE id = $1',
-      values: [id],
-    };
-
-    const { rows } = await this._pool.query(query);
-
-    if (!rows.length) {
-      throw new NotFoundError('Song not found');
     }
   }
 
