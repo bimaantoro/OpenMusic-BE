@@ -6,12 +6,14 @@ const playlistSongs = {
   version: '1.0.0',
   register: async (server, {
     playlistSongsService,
+    playlistSongActivitiesService,
     playlistsService,
     songsService,
     validator,
   }) => {
     const playlistSongsHandler = new PlaylistSongsHandler(
       playlistSongsService,
+      playlistSongActivitiesService,
       playlistsService,
       songsService,
       validator,

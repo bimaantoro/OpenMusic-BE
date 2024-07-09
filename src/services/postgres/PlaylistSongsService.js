@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
-const InvariantError = require('../exceptions/InvariantError');
-const NotFoundError = require('../exceptions/NotFoundError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class PlaylistSongsService {
   constructor() {
@@ -49,7 +49,7 @@ class PlaylistSongsService {
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new NotFoundError('Failed to delete a song from the playlist. Id not found');
+      throw new NotFoundError('Failed to delete song from the playlist. Id not found');
     }
   }
 }

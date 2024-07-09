@@ -14,10 +14,10 @@ class AuthenticationsHandler {
     const { username, password } = this._validator
       .validatePostAuthenticationPayload(request.payload);
 
-    const userId = await this._usersService.verifyUserCredential(username, password);
+    const id = await this._usersService.verifyUserCredential(username, password);
 
-    const accessToken = this._tokenManager.generateAccessToken({ userId });
-    const refreshToken = this._tokenManager.generateRefreshToken({ userId });
+    const accessToken = this._tokenManager.generateAccessToken({ id });
+    const refreshToken = this._tokenManager.generateRefreshToken({ id });
 
     await this._authenticationsService.addRefreshToken(refreshToken);
 
@@ -34,10 +34,10 @@ class AuthenticationsHandler {
   async putAuthenticationHandler(request) {
     const { refreshToken } = this._validator.validatePutAuthenticationPayload(request.payload);
 
-    await this._authenticationsService.isRefreshTokenExists(refreshToken);
-    const { userId } = this._tokenManager.verifyRefreshToken(refreshToken);
+    await this._authenticationsService.isRefreshTokenExist(refreshToken);
+    const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
 
-    const accessToken = this._tokenManager.generateAccessToken({ userId });
+    const accessToken = this._tokenManager.generateAccessToken({ id });
 
     return {
       status: 'success',
@@ -51,7 +51,7 @@ class AuthenticationsHandler {
   async deleteAuthenticationHandler(request) {
     const { refreshToken } = this._validator.validateDeleteAuthenticationPayload(request.payload);
 
-    await this._authenticationsService.isRefreshTokenExists(refreshToken);
+    await this._authenticationsService.isRefreshTokenExist(refreshToken);
     await this._authenticationsService.deleteRefreshToken(refreshToken);
 
     return {

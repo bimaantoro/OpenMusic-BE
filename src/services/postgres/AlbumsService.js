@@ -1,7 +1,8 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
-const InvariantError = require('../exceptions/InvariantError');
-const NotFoundError = require('../exceptions/NotFoundError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const { config } = require('../../utils/config');
 
 class AlbumsService {
   constructor() {
@@ -28,7 +29,7 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: 'SELECT id, name, year FROM albums WHERE id = $1',
+      text: 'SELECT id, name, year, cover FROM albums WHERE id = $1',
       values: [id],
     };
 
@@ -38,7 +39,12 @@ class AlbumsService {
       throw new NotFoundError('Album not found');
     }
 
-    return rows[0];
+    return {
+      id: rows[0].id,
+      name: rows[0].name,
+      year: rows[0].year,
+      coverUrl: rows[0].cover !== null ? `${config.app.generateAlbumArtUrl(id)}` : null,
+    };
   }
 
   async editAlbumById(id, { name, year }) {
@@ -65,6 +71,47 @@ class AlbumsService {
 
     if (!rows.length) {
       throw new NotFoundError('Failed to delete the album. Id not found');
+    }
+  }
+
+  async setCoverUrlToAlbum(id, filename) {
+    const query = {
+      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+      values: [filename, id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Id album not found');
+    }
+  }
+
+  async getCoverAlbumById(id) {
+    const query = {
+      text: 'SELECT cover FROM albums WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      return null;
+    }
+
+    return rows[0].cover;
+  }
+
+  async isAlbumExist(id) {
+    const query = {
+      text: 'SELECT id, name, year FROM albums WHERE id = $1',
+      values: [id],
+    };
+
+    const { rows } = await this._pool.query(query);
+
+    if (!rows.length) {
+      throw new NotFoundError('Album not found');
     }
   }
 }

@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const InvariantError = require('../exceptions/InvariantError');
+const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsService {
   constructor() {
@@ -15,7 +15,7 @@ class AuthenticationsService {
     await this._pool.query(query);
   }
 
-  async isRefreshTokenExists(refreshToken) {
+  async isRefreshTokenExist(refreshToken) {
     const query = {
       text: 'SELECT refresh_token FROM authentications WHERE refresh_token = $1',
       values: [refreshToken],

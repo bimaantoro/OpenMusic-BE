@@ -1,7 +1,7 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
-const InvariantError = require('../exceptions/InvariantError');
-const NotFoundError = require('../exceptions/NotFoundError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 class SongsService {
   constructor() {
@@ -44,7 +44,7 @@ class SongsService {
     const { rows } = await this._pool.query(query);
 
     if (!rows.length) {
-      throw new NotFoundError('songs are not found.');
+      throw new NotFoundError('song not found.');
     }
 
     return rows[0];
@@ -120,7 +120,7 @@ class SongsService {
     return rows;
   }
 
-  async isSongExists(id) {
+  async isSongExist(id) {
     const query = {
       text: 'SELECT id, title, year, performer, genre, duration, album_id FROM songs WHERE id = $1',
       values: [id],

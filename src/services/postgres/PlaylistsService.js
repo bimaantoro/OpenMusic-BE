@@ -1,8 +1,8 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
-const InvariantError = require('../exceptions/InvariantError');
-const NotFoundError = require('../exceptions/NotFoundError');
-const AuthorizationError = require('../exceptions/AuthorizationError');
+const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class PlaylistsService {
   constructor(collaborationsService) {
@@ -52,13 +52,13 @@ class PlaylistsService {
       values: [id],
     };
 
-    const { rows } = await this._pool.query(query);
+    const result = await this._pool.query(query);
 
-    if (!rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Playlist not found');
     }
 
-    return rows[0];
+    return result.rows[0];
   }
 
   async deletePlaylistById(id) {
@@ -109,7 +109,7 @@ class PlaylistsService {
     }
   }
 
-  async isPlaylistExists(id) {
+  async isPlaylistExist(id) {
     const query = {
       text: 'SELECT id, name FROM playlists WHERE id = $1',
       values: [id],

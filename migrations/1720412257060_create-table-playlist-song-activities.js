@@ -1,10 +1,15 @@
 /**
+ * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
+ */
+exports.shorthands = undefined;
+
+/**
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  * @param run {() => void | undefined}
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  pgm.createTable('playlist_songs', {
+  pgm.createTable('playlist_song_activities', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
@@ -16,19 +21,28 @@ exports.up = (pgm) => {
     song_id: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: 'songs',
+    },
+    user_id: {
+      type: 'VARCHAR(50)',
+      notNull: true,
+      references: 'users',
+    },
+    action: {
+      type: 'VARCHAR(10)',
+      notNull: true,
+    },
+    time: {
+      type: 'timestamp',
+      notNull: true,
+      default: pgm.func('current_timestamp'),
     },
   });
 
   pgm.addConstraint(
-    'playlist_songs',
-    'fk_playlist_songs.playlist_id_playlists.id',
+    'playlist_song_activities',
+    'fk_playlist_song_activities.playlist_id_playlists.id',
     'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE',
-  );
-
-  pgm.addConstraint(
-    'playlist_songs',
-    'fk_playlist_songs.song_id_songs.id',
-    'FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE',
   );
 };
 
@@ -38,5 +52,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-  pgm.dropTable('playlist_songs');
+  pgm.dropTable('playlist_song_activities');
 };
