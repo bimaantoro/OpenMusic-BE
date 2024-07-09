@@ -14,7 +14,7 @@ const routes = (handler) => [
   },
   {
     method: 'GET',
-    path: '/albums{albumId}/covers',
+    path: '/albums/{albumId}/covers',
     handler: handler.getAlbumCoverByIdHandler,
   },
 ];

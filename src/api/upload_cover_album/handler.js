@@ -25,7 +25,7 @@ class UploadCoverAlbumHandler {
     return h.response({
       status: 'success',
       message: 'Album cover successfully uploaded',
-    });
+    }).code(201);
   }
 
   async getAlbumCoverByIdHandler(request, h) {
